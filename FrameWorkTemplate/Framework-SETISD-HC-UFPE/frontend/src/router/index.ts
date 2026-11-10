@@ -3,6 +3,7 @@ import { useAuthStore } from '../stores/auth';
 import Home from '../views/Home.vue';
 import Login from '../views/Login.vue';
 import Configuracoes from '../views/Configuracoes.vue';
+import EmConstrucao from '../views/EmConstrucao.vue';
 
 import Exemplos from '../views/Exemplos.vue';
 import Pacientes from '../views/Pacientes.vue';
@@ -10,8 +11,7 @@ import Pacientes from '../views/Pacientes.vue';
 const routes = [
   {
     path: '/',
-    name: 'Início',
-    component: Home,
+    redirect: '/visao-geral',
   },
   {
     path: '/login',
@@ -19,6 +19,56 @@ const routes = [
     component: Login,
     meta: { layout: 'LoginLayout' },
   },
+  {
+    path: '/visao-geral',
+    name: 'Visão Geral',
+    component: Home,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/fila-marcacao',
+    name: 'Fila de Marcação',
+    component: EmConstrucao,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/fila-espera',
+    name: 'Fila de Espera',
+    component: EmConstrucao,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/solicitacoes/:id',
+    name: 'Detalhes da Solicitação',
+    component: EmConstrucao,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/entradas',
+    name: 'Entradas de Solicitações',
+    component: EmConstrucao,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/historico',
+    name: 'Histórico',
+    component: EmConstrucao,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/relatorios',
+    name: 'Relatórios',
+    component: EmConstrucao,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/administracao',
+    name: 'Administração',
+    component: EmConstrucao,
+    meta: { requiresAuth: true },
+  },
+
+  // Rotas originais do framework, preservadas.
   {
     path: '/componentes',
     name: 'Componentes',
@@ -32,7 +82,7 @@ const routes = [
   },
   {
     path: '/configuracoes',
-    name: 'Configuracoes',
+    name: 'Configurações',
     component: Configuracoes,
     meta: { requiresAuth: true },
   },
