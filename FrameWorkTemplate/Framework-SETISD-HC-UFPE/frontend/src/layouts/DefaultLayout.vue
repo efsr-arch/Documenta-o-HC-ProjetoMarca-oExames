@@ -53,7 +53,7 @@
               class="h-6 w-6 shrink-0"
             />
         
-            <span v-if="!isCollapsed" class="truncate">
+            <span v-if="!isCollapsed" class="text-sm leading-snug whitespace-normal break-words">
               {{ item.label }}
             </span>
           </router-link>
@@ -72,7 +72,11 @@
 
     <!-- Content -->
     <div class="flex-1 flex flex-col bg-paper-bg overflow-y-auto h-full">
-      <header class="flex justify-between items-center p-6 bg-white/80 backdrop-blur-md border-b border-gray-300 sticky top-0 z-10">
+      <header class="flex justify-between items-center
+         px-4 py-5 md:px-6
+         bg-white/90 backdrop-blur-md
+         border-b border-[#E9DCCB]
+         sticky top-0 z-10">
         <div>
           <h1 class="text-2xl font-semibold text-paper-text">{{ $route.name }}</h1>
         </div>
@@ -89,7 +93,7 @@
         </div>
       </header>
       <main class="flex-1">
-        <div class="container py-4 md:py-6">
+        <div class="w-full max-w-[1600px] mx-auto px-4 py-4 md:px-6 md:py-6">
           <router-view />
         </div>
       </main>
