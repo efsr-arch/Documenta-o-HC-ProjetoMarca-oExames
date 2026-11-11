@@ -34,47 +34,28 @@
         </div>
 
         <!-- Links de Navegação -->
+        <!-- Navegação principal do SIGEx-HC -->
         <nav class="space-y-2">
-          <router-link 
-            to="/" 
-            :title="isCollapsed ? 'Início' : ''"
-            :class="[isCollapsed ? 'justify-center px-2' : 'px-4']"
-            class="flex items-center space-x-3 py-2.5 rounded transition duration-200 hover:bg-paper-active-link hover:text-white"
+          <router-link
+            v-for="item in menuItems"
+            :key="item.path"
+            :to="item.path"
+            :title="isCollapsed ? item.label : ''"
+            :class="[
+              isCollapsed ? 'justify-center px-2' : 'px-4'
+            ]"
+            class="flex items-center gap-3 py-2.5 rounded-lg
+                   text-white/90 transition duration-200
+                   hover:bg-paper-active-link hover:text-white"
           >
-            <HomeIcon class="h-6 w-6 shrink-0"/>
-            <span v-if="!isCollapsed" class="truncate">Início</span>
-          </router-link>
-
-          <router-link 
-            to="/componentes" 
-            :title="isCollapsed ? 'Componentes' : ''"
-            :class="[isCollapsed ? 'justify-center px-2' : 'px-4']"
-            class="flex items-center space-x-3 py-2.5 rounded transition duration-200 hover:bg-paper-active-link hover:text-white"
-          >
-            <CubeIcon class="h-6 w-6 shrink-0" />
-            <span v-if="!isCollapsed" class="truncate">Componentes</span>
-          </router-link>
-
-          <router-link 
-            v-if="authStore.isAuthenticated" 
-            to="/exemplo" 
-            :title="isCollapsed ? 'Exemplo' : ''"
-            :class="[isCollapsed ? 'justify-center px-2' : 'px-4']"
-            class="flex items-center space-x-3 py-2.5 rounded transition duration-200 hover:bg-paper-active-link hover:text-white"
-          >
-            <DocumentTextIcon class="h-6 w-6 shrink-0" />
-            <span v-if="!isCollapsed" class="truncate">Exemplo</span>
-          </router-link>
-          
-          <router-link 
-            v-if="authStore.isAuthenticated" 
-            to="/configuracoes" 
-            :title="isCollapsed ? 'Configurações' : ''"
-            :class="[isCollapsed ? 'justify-center px-2' : 'px-4']"
-            class="flex items-center space-x-3 py-2.5 rounded transition duration-200 hover:bg-paper-active-link hover:text-white"
-          >
-            <Cog6ToothIcon class="h-6 w-6 shrink-0"/>
-            <span v-if="!isCollapsed" class="truncate">Configurações</span>
+            <component
+              :is="item.icon"
+              class="h-6 w-6 shrink-0"
+            />
+        
+            <span v-if="!isCollapsed" class="text-sm leading-snug whitespace-normal break-words">
+              {{ item.label }}
+            </span>
           </router-link>
         </nav>
       </div>
@@ -91,7 +72,11 @@
 
     <!-- Content -->
     <div class="flex-1 flex flex-col bg-paper-bg overflow-y-auto h-full">
-      <header class="flex justify-between items-center p-6 bg-white/80 backdrop-blur-md border-b border-gray-300 sticky top-0 z-10">
+      <header class="flex justify-between items-center
+         px-4 py-5 md:px-6
+         bg-white/90 backdrop-blur-md
+         border-b border-[#E9DCCB]
+         sticky top-0 z-10">
         <div>
           <h1 class="text-2xl font-semibold text-paper-text">{{ $route.name }}</h1>
         </div>
@@ -108,7 +93,7 @@
         </div>
       </header>
       <main class="flex-1">
-        <div class="container py-4 md:py-6">
+        <div class="w-full max-w-[1600px] mx-auto px-4 py-4 md:px-6 md:py-6">
           <router-view />
         </div>
       </main>
@@ -121,8 +106,11 @@ import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import {
   HomeIcon,
-  CubeIcon,
-  DocumentTextIcon,
+  ClipboardDocumentListIcon,
+  ClockIcon,
+  ArrowUpTrayIcon,
+  ChartBarIcon,
+  UserGroupIcon,
   Cog6ToothIcon,
   CubeTransparentIcon,
   Bars3Icon,
@@ -138,6 +126,44 @@ const isCollapsed = ref(false);
 
 const route = useRoute();
 const authStore = useAuthStore();
+
+const menuItems = [
+  {
+    label: 'Visão Geral',
+    path: '/visao-geral',
+    icon: HomeIcon,
+  },
+  {
+    label: 'Fila de Marcação',
+    path: '/fila-marcacao',
+    icon: ClipboardDocumentListIcon,
+  },
+  {
+    label: 'Fila de Espera',
+    path: '/fila-espera',
+    icon: UserGroupIcon,
+  },
+  {
+    label: 'Entradas de Solicitações',
+    path: '/entradas',
+    icon: ArrowUpTrayIcon,
+  },
+  {
+    label: 'Histórico',
+    path: '/historico',
+    icon: ClockIcon,
+  },
+  {
+    label: 'Relatórios',
+    path: '/relatorios',
+    icon: ChartBarIcon,
+  },
+  {
+    label: 'Administração',
+    path: '/administracao',
+    icon: Cog6ToothIcon,
+  },
+];
 
 const toggleSidebar = () => {
   isCollapsed.value = !isCollapsed.value;

@@ -3,18 +3,18 @@
 @theme {
   --font-family-sans: 'Nunito', sans-serif;
 
-  --color-paper-bg: #f4f3ef;
-  --color-paper-text: #66615b;
-  --color-paper-sidebar: #424242;
-  --color-paper-active-link: #5a5a5a; /* Light Gray for active link */
+  --color-paper-bg: #F7F2E9;
+  --color-paper-text: #302D2C;
+  --color-paper-sidebar: #8F252B;
+  --color-paper-active-link: #A7363C; /* Light Gray for active link */
 
   /* Default */
   --color-paper-default: #66615b;
   --color-paper-default-hover: #55504a;
 
   /* Primary */
-  --color-paper-primary: #7a9e9f;
-  --color-paper-primary-hover: #6a8d8e;
+  --color-paper-primary: #8F252B;
+  --color-paper-primary-hover: #741E23;
 
   /* Info */
   --color-paper-info: #68b3c8;

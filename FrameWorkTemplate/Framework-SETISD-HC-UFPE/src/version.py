@@ -4,7 +4,7 @@ Este é o ÚNICO lugar onde você precisa alterar o número da versão ou nome d
 """
 
 VERSION = "1.0.0"
-APP_NAME = "Framework SETISD"
-SYSTEM_TITLE = "Nome do Sistema"
+APP_NAME = "SIGEx-HC"
+SYSTEM_TITLE = "SIGEx-HC"
 ORGANIZATION = "Hospital das Clínicas da UFPE (HC-UFPE / EBSERH)"
 DEPARTMENT = "Setor de Tecnologia da Informação e Saúde Digital — SETISD"
