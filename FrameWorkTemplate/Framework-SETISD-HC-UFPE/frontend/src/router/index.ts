@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory, NavigationGuardNext } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
-import Home from '../views/Home.vue';
+import VisaoGeral from '../views/VisaoGeral.vue';
 import Login from '../views/Login.vue';
 import Configuracoes from '../views/Configuracoes.vue';
 import EmConstrucao from '../views/EmConstrucao.vue';
@@ -22,7 +22,7 @@ const routes = [
   {
     path: '/visao-geral',
     name: 'Visão Geral',
-    component: Home,
+    component: VisaoGeral,
     meta: { requiresAuth: true },
   },
   {
