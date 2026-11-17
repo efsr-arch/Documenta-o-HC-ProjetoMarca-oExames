@@ -2,6 +2,7 @@ import { createRouter, createWebHistory, NavigationGuardNext } from 'vue-router'
 import { useAuthStore } from '../stores/auth';
 import VisaoGeral from '../views/VisaoGeral.vue';
 import FilaMarcacao from '../views/FilaMarcacao.vue';
+import Historico from '../views/Historico.vue';
 import Login from '../views/Login.vue';
 import Configuracoes from '../views/Configuracoes.vue';
 import EmConstrucao from '../views/EmConstrucao.vue';
@@ -53,7 +54,7 @@ const routes = [
   {
     path: '/historico',
     name: 'Histórico',
-    component: EmConstrucao,
+    component: Historico,
     meta: { requiresAuth: true },
   },
   {
