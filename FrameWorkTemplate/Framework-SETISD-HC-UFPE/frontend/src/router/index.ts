@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory, NavigationGuardNext } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 import VisaoGeral from '../views/VisaoGeral.vue';
+import FilaMarcacao from '../views/FilaMarcacao.vue';
 import Login from '../views/Login.vue';
 import Configuracoes from '../views/Configuracoes.vue';
 import EmConstrucao from '../views/EmConstrucao.vue';
@@ -28,7 +29,7 @@ const routes = [
   {
     path: '/fila-marcacao',
     name: 'Fila de Marcação',
-    component: EmConstrucao,
+    component: FilaMarcacao,
     meta: { requiresAuth: true },
   },
   {
@@ -40,7 +41,7 @@ const routes = [
   {
     path: '/solicitacoes/:id',
     name: 'Detalhes da Solicitação',
-    component: EmConstrucao,
+    component: FilaMarcacao,
     meta: { requiresAuth: true },
   },
   {
