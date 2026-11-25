@@ -83,6 +83,7 @@
               </th>
               <th scope="col">Indicador</th>
               <th scope="col">Situação</th>
+              <th scope="col">Ações</th>
             </tr>
           </thead>
           <tbody>
@@ -98,9 +99,14 @@
                 </div>
               </td>
               <td><span class="situacao">{{ item.situacao }}</span></td>
+              <td>
+                <button type="button" class="acao detalhes" :aria-label="'Ver detalhes do protocolo ' + item.id" @click="abrirDetalhes(item)">
+                  Ver detalhes
+                </button>
+              </td>
             </tr>
             <tr v-if="!filtradas.length">
-              <td colspan="6" class="vazio">
+              <td colspan="7" class="vazio">
                 <strong>{{ solicitacoesEspera.length ? 'Nenhuma solicitação encontrada' : 'Fila de espera vazia' }}</strong>
                 <p>{{ solicitacoesEspera.length ? 'Ajuste a busca ou limpe os filtros.' : 'No momento, nenhuma solicitação aguarda vaga.' }}</p>
               </td>
@@ -126,16 +132,30 @@
         </nav>
       </div>
     </Card>
+
+    <dialog ref="dialogo" class="dialogo" aria-labelledby="titulo-dialogo" @close="fecharDetalhes">
+      <template v-if="selecionada">
+        <header>
+          <h2 id="titulo-dialogo">Detalhes da Solicitação</h2>
+          <button type="button" class="acao fechar" aria-label="Fechar modal" autofocus @click="dialogo?.close()">
+            <XMarkIcon class="h-4 w-4" aria-hidden="true" />
+          </button>
+        </header>
+        <DetalhesEspera :item="selecionada" />
+      </template>
+    </dialog>
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from 'vue';
-import { ArrowDownTrayIcon, ChevronDownIcon, ClipboardDocumentListIcon, ClockIcon, MagnifyingGlassIcon } from '@heroicons/vue/24/outline';
+import { computed, nextTick, reactive, ref, watch } from 'vue';
+import { ArrowDownTrayIcon, ChevronDownIcon, ClipboardDocumentListIcon, ClockIcon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/vue/24/outline';
 import { useToast } from 'vue-toastification';
 import Card from '../components/Card.vue';
+import DetalhesEspera from '../components/fila-espera/DetalhesEspera.vue';
 import { filtrarSolicitacoes } from '../data/filaMarcacao';
 import { solicitacoesEspera } from '../data/filaEspera';
+import type { SolicitacaoEspera } from '../types/filaEspera';
 
 const toast = useToast();
 const filtrosIniciais = { busca: '', exame: '', clinica: '', situacao: '' };
@@ -149,7 +169,9 @@ const faixaEspera = ref<(typeof faixasEspera)[number] | ''>('');
 const menorPrimeiro = ref(false);
 const pagina = ref(1);
 const tamanhoPagina = 5;
+const dialogo = ref<HTMLDialogElement>();
 const campoBusca = ref<HTMLInputElement>();
+const selecionada = ref<SolicitacaoEspera>();
 
 const exames = computed(() => [...new Set(solicitacoesEspera.map(item => item.exame))].sort());
 const clinicas = computed(() => [...new Set(solicitacoesEspera.map(item => item.clinica))].sort());
@@ -183,6 +205,16 @@ function limparFiltros(): void {
   Object.assign(filtros, filtrosIniciais);
   faixaEspera.value = '';
   campoBusca.value?.focus();
+}
+
+async function abrirDetalhes(item: SolicitacaoEspera): Promise<void> {
+  selecionada.value = item;
+  await nextTick();
+  dialogo.value?.showModal();
+}
+
+function fecharDetalhes(): void {
+  selecionada.value = undefined;
 }
 
 function exportarLista(): void {
@@ -259,6 +291,11 @@ tbody tr:hover { background: #fcf7f0; }
 .paginacao .acao[aria-current='page']:hover { background: var(--color-paper-primary-hover); }
 .vazio { text-align: center; padding: 36px 16px; white-space: normal; }
 .vazio p { margin-top: 6px; color: #796963; }
+.dialogo { width: min(580px, calc(100% - 32px)); max-height: calc(100% - 24px); margin: auto; padding: 20px; overflow: auto; border: 1px solid #e8d6c6; border-radius: 15px; background: #fdfbf8; color: #482225; box-shadow: 0 10px 36px #48222533; }
+.dialogo::backdrop { background: #39222380; }
+.dialogo header { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 16px; }
+.dialogo h2 { font-size: 18px; font-weight: 800; }
+.fechar { padding: 6px; }
 @media (max-width: 900px) {
   .busca { flex-basis: 100%; }
   .filtro, .filtro:last-of-type { flex: 1 1 115px; }
