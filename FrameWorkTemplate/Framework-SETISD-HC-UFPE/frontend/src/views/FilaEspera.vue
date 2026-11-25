@@ -107,8 +107,8 @@
             </tr>
             <tr v-if="!filtradas.length">
               <td colspan="7" class="vazio">
-                <strong>{{ solicitacoesEspera.length ? 'Nenhuma solicitação encontrada' : 'Fila de espera vazia' }}</strong>
-                <p>{{ solicitacoesEspera.length ? 'Ajuste a busca ou limpe os filtros.' : 'No momento, nenhuma solicitação aguarda vaga.' }}</p>
+                <strong>{{ filas.espera.length ? 'Nenhuma solicitação encontrada' : 'Fila de espera vazia' }}</strong>
+                <p>{{ filas.espera.length ? 'Ajuste a busca ou limpe os filtros.' : 'No momento, nenhuma solicitação aguarda vaga.' }}</p>
               </td>
             </tr>
           </tbody>
@@ -136,12 +136,27 @@
     <dialog ref="dialogo" class="dialogo" aria-labelledby="titulo-dialogo" @close="fecharDetalhes">
       <template v-if="selecionada">
         <header>
-          <h2 id="titulo-dialogo">Detalhes da Solicitação</h2>
+          <h2 id="titulo-dialogo">{{ confirmando ? 'Confirmar encaminhamento' : 'Detalhes da Solicitação' }}</h2>
           <button type="button" class="acao fechar" aria-label="Fechar modal" autofocus @click="dialogo?.close()">
             <XMarkIcon class="h-4 w-4" aria-hidden="true" />
           </button>
         </header>
-        <DetalhesEspera :item="selecionada" />
+        <template v-if="confirmando">
+          <p class="confirmacao">
+            Encaminhar <strong>{{ selecionada.paciente }}</strong> para <strong>{{ selecionada.exame }}</strong> na Fila de Marcação?
+            A data original da solicitação será preservada e o agendamento oficial deverá ser feito manualmente no AGHU.
+          </p>
+          <footer>
+            <button ref="cancelar" type="button" class="acao" @click="voltarAosDetalhes">Cancelar</button>
+            <Button type="button" @click="confirmarEncaminhamento">Confirmar encaminhamento</Button>
+          </footer>
+        </template>
+        <template v-else>
+          <DetalhesEspera :item="selecionada" />
+          <footer>
+            <button ref="encaminhar" type="button" class="acao primaria" @click="abrirConfirmacao">Encaminhar para a Fila de Marcação</button>
+          </footer>
+        </template>
       </template>
     </dialog>
   </section>
@@ -151,12 +166,14 @@
 import { computed, nextTick, reactive, ref, watch } from 'vue';
 import { ArrowDownTrayIcon, ChevronDownIcon, ClipboardDocumentListIcon, ClockIcon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/vue/24/outline';
 import { useToast } from 'vue-toastification';
+import Button from '../components/Button.vue';
 import Card from '../components/Card.vue';
 import DetalhesEspera from '../components/fila-espera/DetalhesEspera.vue';
 import { filtrarSolicitacoes } from '../data/filaMarcacao';
-import { solicitacoesEspera } from '../data/filaEspera';
+import { useFilasStore } from '../stores/filas';
 import type { SolicitacaoEspera } from '../types/filaEspera';
 
+const filas = useFilasStore();
 const toast = useToast();
 const filtrosIniciais = { busca: '', exame: '', clinica: '', situacao: '' };
 const filtros = reactive({ ...filtrosIniciais });
@@ -171,14 +188,17 @@ const pagina = ref(1);
 const tamanhoPagina = 5;
 const dialogo = ref<HTMLDialogElement>();
 const campoBusca = ref<HTMLInputElement>();
+const cancelar = ref<HTMLButtonElement>();
+const encaminhar = ref<HTMLButtonElement>();
 const selecionada = ref<SolicitacaoEspera>();
+const confirmando = ref(false);
 
-const exames = computed(() => [...new Set(solicitacoesEspera.map(item => item.exame))].sort());
-const clinicas = computed(() => [...new Set(solicitacoesEspera.map(item => item.clinica))].sort());
+const exames = computed(() => [...new Set(filas.espera.map(item => item.exame))].sort());
+const clinicas = computed(() => [...new Set(filas.espera.map(item => item.clinica))].sort());
 const filtrosAtivos = computed(() => filtros.busca || filtros.exame || filtros.clinica || faixaEspera.value);
 const filtradas = computed(() => {
   const faixa = faixaEspera.value;
-  const itens = filtrarSolicitacoes(solicitacoesEspera, filtros);
+  const itens = filtrarSolicitacoes(filas.espera, filtros);
   const resultado = faixa
     ? itens.filter(item => item.diasCorridos >= faixa.inicio && item.diasCorridos <= faixa.fim)
     : itens;
@@ -189,9 +209,9 @@ const filtradas = computed(() => {
 const totalPaginas = computed(() => Math.max(1, Math.ceil(filtradas.value.length / tamanhoPagina)));
 const itensPagina = computed(() => filtradas.value.slice((pagina.value - 1) * tamanhoPagina, pagina.value * tamanhoPagina));
 const indicadores = computed(() => [
-  { titulo: 'Aguardando vaga', valor: solicitacoesEspera.length, legenda: 'Solicitações na espera' },
-  { titulo: 'Maior tempo de espera', valor: formatarDias(Math.max(0, ...solicitacoesEspera.map(item => item.diasCorridos))), legenda: 'Dado ilustrativo', icone: ClockIcon },
-  { titulo: 'Exames monitorados', valor: exames.value.length, legenda: 'Tipos distintos', icone: ClipboardDocumentListIcon },
+  { titulo: 'Aguardando vaga', valor: filas.resumoEspera.total, legenda: 'Solicitações na espera' },
+  { titulo: 'Maior tempo de espera', valor: formatarDias(filas.resumoEspera.maiorEspera), legenda: 'Dado ilustrativo', icone: ClockIcon },
+  { titulo: 'Exames monitorados', valor: filas.resumoEspera.totalExames, legenda: 'Tipos distintos', icone: ClipboardDocumentListIcon },
 ]);
 
 watch([filtros, faixaEspera, menorPrimeiro], () => { pagina.value = 1; });
@@ -215,6 +235,29 @@ async function abrirDetalhes(item: SolicitacaoEspera): Promise<void> {
 
 function fecharDetalhes(): void {
   selecionada.value = undefined;
+  confirmando.value = false;
+}
+
+async function abrirConfirmacao(): Promise<void> {
+  confirmando.value = true;
+  await nextTick();
+  cancelar.value?.focus();
+}
+
+async function voltarAosDetalhes(): Promise<void> {
+  confirmando.value = false;
+  await nextTick();
+  encaminhar.value?.focus();
+}
+
+async function confirmarEncaminhamento(): Promise<void> {
+  const item = selecionada.value;
+  if (!item || !filas.encaminhar(item.id)) return;
+
+  dialogo.value?.close();
+  toast.success(item.paciente + ' encaminhado para a Fila de Marcação (' + item.exame + ').');
+  await nextTick();
+  campoBusca.value?.focus();
 }
 
 function exportarLista(): void {
@@ -287,15 +330,18 @@ tbody tr:hover { background: #fcf7f0; }
 .rodape-tabela { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding-top: 17px; }
 .paginacao { display: flex; gap: 6px; }
 .paginacao .acao { width: 27px; height: 27px; padding: 0; border-color: #e5d1c3; border-radius: 8px; }
-.paginacao .acao[aria-current='page'] { background: var(--color-paper-primary); border-color: var(--color-paper-primary); color: white; }
-.paginacao .acao[aria-current='page']:hover { background: var(--color-paper-primary-hover); }
+.paginacao .acao[aria-current='page'], .primaria { background: var(--color-paper-primary); border-color: var(--color-paper-primary); color: white; }
+.paginacao .acao[aria-current='page']:hover, .primaria:hover:not(:disabled) { background: var(--color-paper-primary-hover); }
 .vazio { text-align: center; padding: 36px 16px; white-space: normal; }
 .vazio p { margin-top: 6px; color: #796963; }
 .dialogo { width: min(580px, calc(100% - 32px)); max-height: calc(100% - 24px); margin: auto; padding: 20px; overflow: auto; border: 1px solid #e8d6c6; border-radius: 15px; background: #fdfbf8; color: #482225; box-shadow: 0 10px 36px #48222533; }
 .dialogo::backdrop { background: #39222380; }
 .dialogo header { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 16px; }
 .dialogo h2 { font-size: 18px; font-weight: 800; }
+.dialogo footer { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 16px; }
 .fechar { padding: 6px; }
+.confirmacao { font-size: 14px; }
+.primaria, .dialogo footer :deep(button) { min-height: 36px; border-radius: 9px; font-size: 12px; }
 @media (max-width: 900px) {
   .busca { flex-basis: 100%; }
   .filtro, .filtro:last-of-type { flex: 1 1 115px; }
