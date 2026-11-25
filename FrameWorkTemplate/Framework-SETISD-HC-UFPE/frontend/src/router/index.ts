@@ -2,6 +2,7 @@ import { createRouter, createWebHistory, NavigationGuardNext } from 'vue-router'
 import { useAuthStore } from '../stores/auth';
 import VisaoGeral from '../views/VisaoGeral.vue';
 import FilaMarcacao from '../views/FilaMarcacao.vue';
+import FilaEspera from '../views/FilaEspera.vue';
 import Historico from '../views/Historico.vue';
 import Login from '../views/Login.vue';
 import Configuracoes from '../views/Configuracoes.vue';
@@ -36,7 +37,7 @@ const routes = [
   {
     path: '/fila-espera',
     name: 'Fila de Espera',
-    component: EmConstrucao,
+    component: FilaEspera,
     meta: { requiresAuth: true },
   },
   {
