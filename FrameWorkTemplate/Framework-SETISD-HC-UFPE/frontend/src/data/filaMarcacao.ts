@@ -34,7 +34,10 @@ function normalizar(texto: string): string {
   return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('pt-BR').trim();
 }
 
-export function filtrarSolicitacoes(itens: SolicitacaoDemonstrativa[], filtros: FiltrosFila): SolicitacaoDemonstrativa[] {
+export function filtrarSolicitacoes<T extends Pick<SolicitacaoDemonstrativa, 'id' | 'paciente' | 'exame' | 'clinica' | 'situacao'>>(
+  itens: readonly T[],
+  filtros: FiltrosFila,
+): T[] {
   const busca = normalizar(filtros.busca).replace(/^#/, '');
   return itens.filter((item) =>
     normalizar(item.paciente + ' ' + item.id).includes(busca)

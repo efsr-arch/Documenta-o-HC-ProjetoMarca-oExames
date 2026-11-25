@@ -98,22 +98,24 @@ import { computed, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter, RouterLink } from 'vue-router';
 import { ClipboardDocumentListIcon, ClockIcon, MagnifyingGlassIcon } from '@heroicons/vue/24/outline';
 import Card from '../components/Card.vue';
-import { solicitacoesDemonstrativas, filtrarSolicitacoes } from '../data/filaMarcacao';
+import { filtrarSolicitacoes } from '../data/filaMarcacao';
+import { useFilasStore } from '../stores/filas';
 
+const filas = useFilasStore();
 const route = useRoute();
 const router = useRouter();
 const filtros = reactive({ busca: String(route.query.busca || ''), exame: String(route.query.exame || ''), clinica: String(route.query.clinica || ''), situacao: String(route.query.situacao || '') });
 const pagina = ref(Math.max(1, Number(route.query.pagina) || 1));
 const tamanhoPagina = 6;
-const exames = [...new Set(solicitacoesDemonstrativas.map(item => item.exame))].sort();
-const clinicas = [...new Set(solicitacoesDemonstrativas.map(item => item.clinica))].sort();
-const filtradas = computed(() => filtrarSolicitacoes(solicitacoesDemonstrativas, filtros));
+const exames = computed(() => [...new Set(filas.marcacao.map(item => item.exame))].sort());
+const clinicas = computed(() => [...new Set(filas.marcacao.map(item => item.clinica))].sort());
+const filtradas = computed(() => filtrarSolicitacoes(filas.marcacao, filtros));
 const totalPaginas = computed(() => Math.max(1, Math.ceil(filtradas.value.length / tamanhoPagina)));
 pagina.value = Math.min(Math.floor(pagina.value), totalPaginas.value);
 const itensPagina = computed(() => filtradas.value.slice((pagina.value - 1) * tamanhoPagina, pagina.value * tamanhoPagina));
 const inicio = computed(() => filtradas.value.length ? (pagina.value - 1) * tamanhoPagina + 1 : 0);
 const fim = computed(() => Math.min(pagina.value * tamanhoPagina, filtradas.value.length));
-const selecionada = computed(() => solicitacoesDemonstrativas.find(item => item.id === route.params.id));
+const selecionada = computed(() => filas.marcacao.find(item => item.id === route.params.id));
 const indicadores = computed(() => [
   { titulo: 'Solicitações na fila', valor: filtradas.value.length, legenda: 'Conforme os filtros selecionados', icone: ClipboardDocumentListIcon },
   { titulo: 'Pendentes', valor: filtradas.value.filter(item => item.situacao === 'Pendente').length, legenda: 'Aguardando conferência', icone: ClockIcon },
