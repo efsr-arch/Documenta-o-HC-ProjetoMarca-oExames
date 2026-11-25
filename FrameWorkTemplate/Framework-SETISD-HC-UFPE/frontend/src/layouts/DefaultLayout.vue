@@ -1,5 +1,5 @@
 <template>
-  <div class="relative h-screen overflow-hidden md:flex">
+  <div class="relative flex h-screen flex-col overflow-hidden md:flex-row">
     <!-- Mobile Menu Header -->
     <div class="bg-paper-sidebar text-gray-100 flex justify-between md:hidden shrink-0">
       <router-link to="/" class="block p-4 text-white font-bold">{{ SYSTEM_TITLE }}</router-link>
@@ -48,6 +48,8 @@
             v-for="item in menuItems"
             :key="item.path"
             :to="item.path"
+            active-class=""
+            exact-active-class=""
             :title="isCollapsed ? item.label : ''"
             :class="[
               isCollapsed ? 'justify-center px-2' : 'px-3.5',
@@ -81,7 +83,7 @@
     </aside>
 
     <!-- Content -->
-    <div class="flex-1 flex flex-col bg-paper-bg overflow-y-auto h-full">
+    <div class="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto bg-paper-bg">
       <header class="flex justify-between items-center
          px-4 py-4 md:px-6
          bg-[#FFFDFB]/95 backdrop-blur-md
