@@ -3,13 +3,13 @@
  */
 
 /** Identificadores visuais suportados pelos cards de KPI. */
-export type KpiIconeTipo = 'total' | 'pendentes' | 'analise' | 'aguardando';
+export type KpiIconeTipo = 'total' | 'pendentes' | 'analise' | 'aguardando' | 'agendados' | 'realizados' | 'ausencias';
 
 /** Card de indicador operacional exibido no topo da Visão Geral. */
 export interface KpiIndicador {
   id: string;
   titulo: string;
-  valor: number;
+  valor: number | string;
   subtitulo: string;
   icone: KpiIconeTipo;
 }

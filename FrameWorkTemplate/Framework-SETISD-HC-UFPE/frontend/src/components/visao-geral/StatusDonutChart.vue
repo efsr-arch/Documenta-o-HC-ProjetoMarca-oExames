@@ -2,10 +2,10 @@
   <section class="rounded-2xl border border-[#E9DCCB] bg-white p-6 shadow-paper flex flex-col">
     <header class="flex items-baseline justify-between gap-2">
       <h2 class="text-base font-bold text-paper-text">
-        Solicitações por status
+        {{ titulo }}
       </h2>
       <span class="text-xs text-[#8A817C]">
-        Distribuição atual
+        {{ subtitulo }}
       </span>
     </header>
 
@@ -16,7 +16,7 @@
           viewBox="0 0 180 180"
           class="h-full w-full -rotate-90"
           role="img"
-          :aria-label="`Distribuição de ${total} solicitações por status`"
+          :aria-label="`${titulo} (${total} ${rotuloTotal})`"
         >
           <circle
             cx="90"
@@ -50,7 +50,7 @@
             {{ segmentoAtivo ? segmentoAtivo.quantidade : total }}
           </span>
           <span class="mt-1 text-xs text-[#8A817C]">
-            {{ segmentoAtivo ? `${segmentoAtivo.percentual}%` : 'solicitações' }}
+            {{ segmentoAtivo ? `${segmentoAtivo.percentual}%` : rotuloTotal }}
           </span>
         </div>
       </div>
@@ -84,10 +84,17 @@
 import { computed, ref } from 'vue';
 import type { StatusDistribuicao } from '../../types/visaoGeral';
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   items: StatusDistribuicao[];
   total: number;
-}>();
+  titulo?: string;
+  subtitulo?: string;
+  rotuloTotal?: string;
+}>(), {
+  titulo: 'Solicitações por status',
+  subtitulo: 'Distribuição atual',
+  rotuloTotal: 'solicitações',
+});
 
 const RADIUS = 64;
 const STROKE_WIDTH = 28;
