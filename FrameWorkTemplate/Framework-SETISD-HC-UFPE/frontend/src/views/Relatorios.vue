@@ -8,7 +8,23 @@
         <h1 class="mt-0.5 text-2xl font-bold tracking-tight text-paper-text md:text-3xl">Relatórios</h1>
         <p class="mt-1 text-sm text-[#66615B]">Indicadores operacionais de marcação e acompanhamento dos exames.</p>
       </div>
+      <Button type="button" :disabled="!resumo.totais.solicitacoes" @click="exportarRelatorio">
+        <template #icon>
+          <ArrowDownTrayIcon class="h-4 w-4" aria-hidden="true" />
+        </template>
+        Exportar relatório
+      </Button>
     </header>
+
+    <div
+      v-if="exportacaoConcluida"
+      class="flex items-center justify-between gap-3 rounded-xl border border-[#D5E6D8] bg-[#EAF5EC] px-4 py-3 text-sm text-[#2D6A4F]"
+    >
+      <span role="status">Exportação simulada. O CSV contém os dados fictícios dos filtros aplicados.</span>
+      <button type="button" class="rounded p-1" aria-label="Dispensar confirmação" @click="exportacaoConcluida = false">
+        <XMarkIcon class="h-4 w-4" aria-hidden="true" />
+      </button>
+    </div>
 
     <form
       class="grid items-end gap-3 rounded-2xl border border-[#E9DCCB] bg-white px-5 py-4 shadow-paper min-[375px]:grid-cols-2 sm:flex sm:flex-wrap"
@@ -89,11 +105,13 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { ChartBarIcon } from '@heroicons/vue/24/outline';
+import { ArrowDownTrayIcon, ChartBarIcon, XMarkIcon } from '@heroicons/vue/24/outline';
+import Button from '../components/Button.vue';
 import ResumoExamesTable from '../components/relatorios/ResumoExamesTable.vue';
 import SolicitacoesSemanaChart from '../components/relatorios/SolicitacoesSemanaChart.vue';
 import KpiCard from '../components/visao-geral/KpiCard.vue';
 import StatusDonutChart from '../components/visao-geral/StatusDonutChart.vue';
+import { baixarCsvRelatorio } from '../services/relatoriosExportacao';
 import {
   consultarRelatorio,
   filtrosIniciaisRelatorio,
@@ -108,6 +126,7 @@ import type { KpiIndicador } from '../types/visaoGeral';
 const opcoes = obterOpcoesRelatorio();
 const filtros = ref({ ...filtrosIniciaisRelatorio });
 const filtrosAplicados = ref({ ...filtrosIniciaisRelatorio });
+const exportacaoConcluida = ref(false);
 
 const camposFiltro: {
   campo: keyof FiltrosRelatorio;
@@ -134,12 +153,19 @@ const recorteExibido = computed(() => {
 /** Atualiza os indicadores com os valores selecionados no formulário. */
 function aplicarFiltros(): void {
   filtrosAplicados.value = { ...filtros.value };
+  exportacaoConcluida.value = false;
 }
 
 /** Restaura o demonstrativo inicial e aplica o recorte. */
 function limparFiltros(): void {
   filtros.value = { ...filtrosIniciaisRelatorio };
   aplicarFiltros();
+}
+
+/** Exporta o resumo atualmente exibido. */
+function exportarRelatorio(): void {
+  baixarCsvRelatorio(filtrosAplicados.value, resumo.value);
+  exportacaoConcluida.value = true;
 }
 
 const indicadores = computed<KpiIndicador[]>(() => {
