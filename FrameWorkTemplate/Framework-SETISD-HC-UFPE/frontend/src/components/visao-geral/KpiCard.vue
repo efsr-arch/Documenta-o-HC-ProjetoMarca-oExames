@@ -15,6 +15,9 @@
         <DocumentTextIcon v-if="kpi.icone === 'total'" class="h-4 w-4" />
         <ClockIcon v-else-if="kpi.icone === 'pendentes'" class="h-4 w-4" />
         <MagnifyingGlassIcon v-else-if="kpi.icone === 'analise'" class="h-4 w-4" />
+        <CalendarDaysIcon v-else-if="kpi.icone === 'agendados'" class="h-4 w-4" />
+        <CheckIcon v-else-if="kpi.icone === 'realizados'" class="h-4 w-4" />
+        <XMarkIcon v-else-if="kpi.icone === 'ausencias'" class="h-4 w-4" />
         <!-- Ícone ampulheta em SVG para manter consistência visual com os ícones de linha -->
         <svg
           v-else
@@ -48,9 +51,12 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import {
+  CalendarDaysIcon,
+  CheckIcon,
   ClockIcon,
   DocumentTextIcon,
   MagnifyingGlassIcon,
+  XMarkIcon,
 } from '@heroicons/vue/24/outline';
 import type { KpiIndicador, KpiIconeTipo } from '../../types/visaoGeral';
 
@@ -63,6 +69,9 @@ const ICON_BADGE_CLASSES: Record<KpiIconeTipo, string> = {
   pendentes: 'bg-[#F9EAE8] text-paper-primary',
   analise: 'bg-[#F9EAE8] text-paper-primary',
   aguardando: 'bg-[#F7EFE1] text-[#8E6528]',
+  agendados: 'bg-[#F9EAE8] text-paper-primary',
+  realizados: 'bg-[#F9EAE8] text-paper-primary',
+  ausencias: 'bg-[#F9EAE8] text-paper-primary',
 };
 
 const badgeClass = computed(() => ICON_BADGE_CLASSES[props.kpi.icone]);

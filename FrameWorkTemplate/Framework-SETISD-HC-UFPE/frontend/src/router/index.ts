@@ -5,6 +5,7 @@ import FilaMarcacao from '../views/FilaMarcacao.vue';
 import FilaEspera from '../views/FilaEspera.vue';
 import EntradasSolicitacoes from '../views/EntradasSolicitacoes.vue';
 import Historico from '../views/Historico.vue';
+import Relatorios from '../views/Relatorios.vue';
 import Login from '../views/Login.vue';
 import Configuracoes from '../views/Configuracoes.vue';
 import EmConstrucao from '../views/EmConstrucao.vue';
@@ -63,7 +64,7 @@ const routes = [
   {
     path: '/relatorios',
     name: 'Relatórios',
-    component: EmConstrucao,
+    component: Relatorios,
     meta: { requiresAuth: true },
   },
   {
