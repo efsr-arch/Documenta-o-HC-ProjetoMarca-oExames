@@ -7,6 +7,7 @@ import Historico from '../views/Historico.vue';
 import Login from '../views/Login.vue';
 import Configuracoes from '../views/Configuracoes.vue';
 import EmConstrucao from '../views/EmConstrucao.vue';
+import Administracao from '../views/Administracao.vue';
 
 import Exemplos from '../views/Exemplos.vue';
 import Pacientes from '../views/Pacientes.vue';
@@ -67,7 +68,7 @@ const routes = [
   {
     path: '/administracao',
     name: 'Administração',
-    component: EmConstrucao,
+    component: Administracao,
     meta: { requiresAuth: true },
   },
 
